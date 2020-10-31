@@ -155,3 +155,6 @@ def evaluate(model, loader): # Evaluate accuracy on validation / test set
 train(model, trainloader, num_epochs)
 print("Evaluate on test set")
 evaluate(model, testloader)
+
+
+
