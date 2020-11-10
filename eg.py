@@ -10,49 +10,53 @@ from torchvision import datasets, transforms
 from torch.utils.data import Dataset, Subset, DataLoader, random_split
 
 # TODO: Construct your data in the following baseline structure: 1) ./Dataset/Train/image/, 2) ./Dataset/Train/label, 3) ./Dataset/Test/image, and 4) ./Dataset/Test/label
-class DataSet:
-    def __init__(self, root):
-        
+class DataSet(Dataset):
+    def __init__(self, root):        
         self.ROOT = root
-        self.images = read_images(root + "/image")
-        self.labels = read_labels(root + "/label")
 
     def __len__(self):
         # Return number of points in the dataset
-
-        return len(self.images)
+        imgs_path = os.path.join(self.root, 'image')
+        return len(os.listdir(imgs_path))
 
     def __getitem__(self, idx):
         # Here we have to return the item requested by `idx`. The PyTorch DataLoader class will use this method to make an iterable for training/validation loop.
+        img_path = os.path.join(self.root, 'image', f'{str(idx)}.png')
+        label_path = os.path.join(self.root, 'label', f'{str(idx)}.txt')
 
-        img = images[idx]
-        label = labels[idx]
+        # Import image
+        img = plt.imread(img_path)
+
+        # Get label of corresponding image
+        l = open(label_path, 'r')
+        label = l.read()
 
         return img, label
 
-    # Load the dataset and train and test splits
-    print("Loading datasets...")
 
-    # Data path
-    DATA_train_path = Dataset('./Dataset/Train')
-    DATA_test_path = Dataset('./Dataset/Test')
+# Load the dataset and train and test splits
+print("Loading datasets...")
 
-    # Data normalization
-    MyTransform = transforms.Compose([
-        transforms.Grayscale(num_output_channels=1) # Convert image to grayscale
-        transforms.ToTensor(), # Transform from [0,255] uint8 to [0,1] float
-        transforms.Normalize([0.????], [0.????]) # TODO: Normalize to zero mean and unit variance with appropriate parameters
-    ])
+# Data path
+DATA_train_path = DataSet('./Dataset/Train')
+DATA_test_path = DataSet('./Dataset/Test')
 
-    DATA_train = datasets.ImageFolder(root=DATA_train_path, transform=MyTransform)
-    DATA_test = datasets.ImageFolder(root=DATA_test_path, transform=MyTransform)
+# Data normalization
+MyTransform = transforms.Compose([
+    transforms.Grayscale(num_output_channels=1), # Convert image to grayscale
+    transforms.ToTensor(), # Transform from [0,255] uint8 to [0,1] float
+    transforms.Normalize([0.5], [0.5]) # TODO: Normalize to zero mean and unit variance with appropriate parameters
+])
 
-    print("Done!")
+DATA_train = datasets.ImageFolder(root=DATA_train_path, transform=MyTransform)
+DATA_test = datasets.ImageFolder(root=DATA_test_path, transform=MyTransform)
 
-    # Create dataloaders
-    # TODO: Experiment with different batch sizes
-    trainloader = DataLoader(Data_train, batch_size=??, shuffle=True)
-    testloader = DataLoader(Data_test, batch_size=??, shuffle=True)
+print("Done!")
+
+# Create dataloaders
+# TODO: Experiment with different batch sizes
+trainloader = DataLoader(Data_train, batch_size=??, shuffle=True)
+testloader = DataLoader(Data_test, batch_size=??, shuffle=True)
 
 class Network(nn.Module):
     def __init__(self):
