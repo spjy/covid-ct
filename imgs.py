@@ -1,6 +1,3 @@
-#msg= "hello"
-#print(msg)
-#to run - python test.py
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
 #IMPORT LIBRARIES
 import torchvision
@@ -12,19 +9,14 @@ from matplotlib import pyplot
 import shutil
 import random
 import math
-
 import argparse
 
 # Process location of dataset
 parser = argparse.ArgumentParser(description='Process image dataset.')
 parser.add_argument('dataset_dir', type=str, help='Directory containing your dataset data')
-
 args = parser.parse_args()
-
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
 #PREPARE TRAINING AND TESTING DATA 
-
-# Creating Train / Val / Test folders (One time use)
 
 # location of folder containing all the original images, to be copied
 copy_dir = args.dataset_dir
@@ -83,6 +75,30 @@ for cls in classesdir:
                 label = open(label_path, 'a')
                 label.write(cls[0])
                 label.close()
+#Check stuff below --------------------------------------------------------------------------------------------------------------------
+                # Rotate image 90, 180, 270 degrees
+                f'{int(train_count)}90.png' = transforms.functional.rotate(f'{int(train_count)}.png',90)
+                f'{int(train_count)}180.png' = transforms.functional.rotate(f'{int(train_count)}.png',180)
+                f'{int(train_count)}270.png' = transforms.functional.rotate(f'{int(train_count)}.png',270)
+
+                # Create label file corresponding to image (90 degree rotate)
+                label_path = os.path.join(train_labels, f'{int(train_count)}90.txt')
+                label = open(label_path, 'a')
+                label.write(cls[0])
+                label.close()
+
+                # Create label file corresponding to image (180 degree rotate)
+                label_path = os.path.join(train_labels, f'{int(train_count)}180.txt')
+                label = open(label_path, 'a')
+                label.write(cls[0])
+                label.close()
+
+                # Create label file corresponding to image (270 degree rotate)
+                label_path = os.path.join(train_labels, f'{int(train_count)}270.txt')
+                label = open(label_path, 'a')
+                label.write(cls[0])
+                label.close()
+#Check stuff above --------------------------------------------------------------------------------------------------------------------
 
                 # For file name
                 train_count = train_count + 1
@@ -102,7 +118,7 @@ for cls in classesdir:
             
             img_count = img_count + 1 # For ratio of train/test
 
-
+#--------------------------------------------------------------------------------------------------------------------------------------------------------
 # allFileNames = os.listdir(src)
 
 # #np.random.shuffle(allFileNames)
