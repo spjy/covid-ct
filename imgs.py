@@ -10,6 +10,7 @@ import shutil
 import random
 import math
 import argparse
+import cv2
 
 # Process location of dataset
 parser = argparse.ArgumentParser(description='Process image dataset.')
@@ -75,31 +76,18 @@ for cls in classesdir:
                 label = open(label_path, 'a')
                 label.write(cls[0])
                 label.close()
-#Check stuff below --------------------------------------------------------------------------------------------------------------------
-                # Rotate image 90, 180, 270 degrees
-                f'{int(train_count)}90.png' = transforms.functional.rotate(f'{int(train_count)}.png',90)
-                f'{int(train_count)}180.png' = transforms.functional.rotate(f'{int(train_count)}.png',180)
-                f'{int(train_count)}270.png' = transforms.functional.rotate(f'{int(train_count)}.png',270)
+                #Rotate images
+                for i in range (90,270,90):
+                    # Rotate image 90 degrees
+                    first = cv2.rotate(image_path,i)
+                    cv2.imwrite(image_path,first)
+                    img_count = img_count + 1;
 
-                # Create label file corresponding to image (90 degree rotate)
-                label_path = os.path.join(train_labels, f'{int(train_count)}90.txt')
-                label = open(label_path, 'a')
-                label.write(cls[0])
-                label.close()
-
-                # Create label file corresponding to image (180 degree rotate)
-                label_path = os.path.join(train_labels, f'{int(train_count)}180.txt')
-                label = open(label_path, 'a')
-                label.write(cls[0])
-                label.close()
-
-                # Create label file corresponding to image (270 degree rotate)
-                label_path = os.path.join(train_labels, f'{int(train_count)}270.txt')
-                label = open(label_path, 'a')
-                label.write(cls[0])
-                label.close()
-#Check stuff above --------------------------------------------------------------------------------------------------------------------
-
+                    # Create label file corresponding to image (90 degree rotate)
+                    label_path = os.path.join(train_labels, f'{int(train_count)}.txt')
+                    label = open(label_path, 'a')
+                    label.write(cls[0])
+                    label.close()
                 # For file name
                 train_count = train_count + 1
             else: # Otherwise, put the rest of the images in test
@@ -112,47 +100,23 @@ for cls in classesdir:
                 label = open(label_path, 'a')
                 label.write(cls[0])
                 label.close()
+                #Rotate Images
+                for i in range (90,270,90):
+                    # Rotate image 90 degrees
+                    first = cv2.rotate(image_path,i)
+                    cv2.imwrite(image_path,first)
+                    img_count = img_count + 1;
 
+                    # Create label file corresponding to image (90 degree rotate)
+                    label_path = os.path.join(test_labels, f'{int(test_count)}.txt')
+                    label = open(label_path, 'a')
+                    label.write(cls[0])
+                    label.close()
                 # For file name
                 test_count = test_count + 1
             
             img_count = img_count + 1 # For ratio of train/test
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
-# allFileNames = os.listdir(src)
-
-# #np.random.shuffle(allFileNames)
-# train_FileNames,test_FileNames = np.split(np.array(allFileNames),[int(len(allFileNames)*(train_ratio)),int(len(allFileNames)*(test_ratio))])
-#     #numpy.split(ary, indices_or_sections, axis) --> ary = input to be split, indices or sections- integer indicating size, axis, defaults to 0)
-
-# train_FileNames = [src+'/'+ name for name in train_FileNames.tolist()]
-# test_FileNames = [src+'/' + name for name in test_FileNames.tolist()]
-
-# Loop through class dirs
-# Loop through each patient 
-
-# print('Total images: ', len(allFileNames))
-# print('Training: ', len(train_FileNames))
-# print('Testing: ', len(test_FileNames))
-#--------------------------------------------------------------------------------------------------------------------------------------------------------
-
-#APPLY TRANSFROMATIONS
-
-#Define transforms (0,90,180,270 degree rotations)
-#transform1 = transforms.Compose(transforms.ToTensor()])
-#transform2 = transforms.Compose([transforms.RandomRotation(90),transforms.ToTensor()])
-#transform3 = transforms.Compose([transforms.RandomRotation(180),transforms.ToTensor()])
-#transform4 = transforms.Compose([transforms.RandomRotation(270),transforms.ToTensor()])
-
-#Apply 
-#train_data = datasets.ImageFolder(root_dir + ‘/train + cls’,transform1=train_transforms, 
-#transform2=train_transforms, transform3=train_transforms, transform4=train_transforms)    
-                                  
-#test_data = datasets.ImageFolder(root_dir + ‘/test’ + cls,transform1=test_transforms, 
-#transform2=test_transforms, transform3=test_transforms, transform4=test_transforms)
-#--------------------------------------------------------------------------------------------------------------------------------------------------------
-#Data Loading
-#trainloader = torch.utils.data.DataLoader(train_data, batch_size=32)
-#testloader = torch.utils.data.DataLoader(test_data, batch_size=32)
 
 
