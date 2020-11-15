@@ -101,15 +101,15 @@ class Network(nn.Module):
         self.model_resnet.fc = nn.Identity()
         
         # TODO: Design your own FCN
-        self.fc1 = nn.Linear(num_fc_in, ?, bias = 0 ) # from input of size num_fc_in to output of size ?
-            #maybe its a 0? 
-            #nn.Linar(in_features~int,out_features~int,bias~bool) 
-            #if bias false, layer will not learn additive bias
-            #in_features: size of intput sample
-            #out_features: size of output sample
-        self.fc2 = nn.Linear(?, 3, bias = 0 ) # from hidden layer to 3 class scores
-            #input feature = output feature above? 
-            #out_features: size 3
+        self.fc1 = nn.Linear(num_fc_in, 64, bias = 0 ) # from input of size num_fc_in to output of size ?
+            #eh: maybe its a 0? 
+            #eh: nn.Linar(in_features~int,out_features~int,bias~bool) 
+            #eh: if bias false, layer will not learn additive bias
+            #eh: in_features: size of intput sample
+            #eh: out_features: size of output sample
+        self.fc2 = nn.Linear(64, 3, bias = 0 ) # from hidden layer to 3 class scores
+            #eh: input feature = output feature above? 
+            #eh: out_features: size 3
 
     def forward(self,x):
         # TODO: Design your own network, implement forward pass here
@@ -119,12 +119,14 @@ class Network(nn.Module):
             features = self.model_resnet(x)
             
         x = self.fc1(features) # Activation are flattened before being passed to the fully connected layers
-            #applies linear transformation to the datay = xA^T+b
+            #eh: applies linear transformation to the datay = xA^T+b
         x = relu(x)
-            #applies rectified linear unit function element-wise
+            #eh: applies rectified linear unit function element-wise
         x = self.fc2(x) 
-            #applies linear transform from hidden layers to x
-        
+            #eh: applies linear transform from hidden layers to x
+        x = F.log_softmax(x) 
+            #eh: outputs are confidence score
+
         # The loss layer will be applied outside Network class
         return x
 
@@ -133,8 +135,10 @@ model = Network().to(device)
 criterion = nn.CrossEntropyLoss() # Specify the loss layer (note: CrossEntropyLoss already includes LogSoftMax())
 # TODO: Modify the line below, experiment with different optimizers and parameters (such as learning rate)
 optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=??, weight_decay=???) # Specify optimizer and assign trainable parameters to it, weight_decay is L2 regularization strength (default: lr=1e-2, weight_decay=1e-4)
-num_epochs = ?? # TOO: Choose an appropriate number of training epochs
-
+num_epochs = 4 # TOO: Choose an appropriate number of training epochs
+    #eh: epoch counted as each full pass through data set (range 3-10) 
+    #eh: too small~ model may not learn everything it could have
+    #eh: chose 4 for now, but we can change it
 def train(model, loader, num_epoch = num_epochs): # Train the model
     print("Start training...")
     model.train() # Set the model to training mode
