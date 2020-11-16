@@ -55,8 +55,8 @@ print("Done!")
 
 # Create dataloaders
 # TODO: Experiment with different batch sizes
-trainloader = DataLoader(Data_train, batch_size=??, shuffle=True)
-testloader = DataLoader(Data_test, batch_size=??, shuffle=True)
+trainloader = DataLoader(Data_train, batch_size=32, shuffle=True)
+testloader = DataLoader(Data_test, batch_size=32, shuffle=True)
 
 class Network(nn.Module):
     def __init__(self):
