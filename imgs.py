@@ -71,6 +71,7 @@ def process_image(image_original, image_directory, label_directory, filename, ro
         label.close()
 
 for cls in classesdir:
+    print(f'Processing {cls} dataset')
     # Loop through patient folders in class
     # Path of class folder
     class_path = os.path.join(copy_dir, cls[0])
@@ -99,7 +100,6 @@ for cls in classesdir:
 
                     test_count = test_count + 1
             
-            print(img_count)
             img_count = img_count + 1 # For ratio of train/test
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
