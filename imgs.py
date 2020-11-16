@@ -11,6 +11,7 @@ import random
 import math
 import argparse
 import cv2
+import imutils
 
 # Process location of dataset
 parser = argparse.ArgumentParser(description='Process image dataset.')
@@ -51,6 +52,24 @@ img_count = 0
 train_count = 0
 test_count = 0
 
+def process_image(image_original, image_directory, label_directory, filename, rotation):
+    if (image_original.endswith('.png')):
+        # Copy file from dataset to coerced dataset folder
+        image_path = os.path.join(image_directory, f'{int(filename)}.png')
+        shutil.copyfile(image_original, image_path)
+
+        img = cv2.imread(image_original)
+
+        # Rotate image
+        rot = imutils.rotate_bound(img, rotation)
+        cv2.imwrite(image_path, rot)
+
+        # Create label file corresponding to image (90 degree rotate)
+        label_path = os.path.join(label_directory, f'{int(filename)}.txt')
+        label = open(label_path, 'a')
+        label.write(cls[0])
+        label.close()
+
 for cls in classesdir:
     # Loop through patient folders in class
     # Path of class folder
@@ -67,54 +86,20 @@ for cls in classesdir:
 
             # Check if image count is less than 80%. If so, put in train
             if (img_count <= math.floor(cls[1] * train_ratio)):
-                # Copy file from dataset to coerced dataset folder
-                image_path = os.path.join(train_images, f'{int(train_count)}.png')
-                shutil.copyfile(img_path, image_path)
-
-                # Create label file corresponding to image
-                label_path = os.path.join(train_labels, f'{int(train_count)}.txt')
-                label = open(label_path, 'a')
-                label.write(cls[0])
-                label.close()
                 #Rotate images
-                for i in range (90,270,90):
-                    # Rotate image 90 degrees
-                    first = cv2.rotate(image_path,i)
-                    cv2.imwrite(image_path,first)
-                    img_count = img_count + 1;
-
-                    # Create label file corresponding to image (90 degree rotate)
-                    label_path = os.path.join(train_labels, f'{int(train_count)}.txt')
-                    label = open(label_path, 'a')
-                    label.write(cls[0])
-                    label.close()
-                # For file name
-                train_count = train_count + 1
+                for rotation in range (0, 271, 90):
+                    process_image(img_path, train_images, train_labels, train_count, rotation)
+                    
+                    # For file name
+                    train_count = train_count + 1
             else: # Otherwise, put the rest of the images in test
-                # Copy file from dataset to coerced dataset folder
-                image_path = os.path.join(test_images, f'{int(test_count)}.png')
-                shutil.copyfile(img_path, image_path)
+                # Rotate Images
+                for rotation in range (0, 271, 90):
+                    process_image(img_path, test_images, test_labels, test_count, rotation)
 
-                # Create label file corresponding to image
-                label_path = os.path.join(test_labels, f'{int(test_count)}.txt')
-                label = open(label_path, 'a')
-                label.write(cls[0])
-                label.close()
-                #Rotate Images
-                for i in range (90,270,90):
-                    # Rotate image 90 degrees
-                    first = cv2.rotate(image_path,i)
-                    cv2.imwrite(image_path,first)
-                    img_count = img_count + 1;
-
-                    # Create label file corresponding to image (90 degree rotate)
-                    label_path = os.path.join(test_labels, f'{int(test_count)}.txt')
-                    label = open(label_path, 'a')
-                    label.write(cls[0])
-                    label.close()
-                # For file name
-                test_count = test_count + 1
+                    test_count = test_count + 1
             
+            print(img_count)
             img_count = img_count + 1 # For ratio of train/test
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
