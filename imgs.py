@@ -60,8 +60,10 @@ def process_image(image_original, image_directory, label_directory, filename, ro
 
         img = cv2.imread(image_original)
 
+        rsz = cv2.resize(img, (224, 224))
+
         # Rotate image
-        rot = imutils.rotate_bound(img, rotation)
+        rot = imutils.rotate_bound(rsz, rotation)
         cv2.imwrite(image_path, rot)
 
         # Create label file corresponding to image (90 degree rotate)
@@ -71,7 +73,7 @@ def process_image(image_original, image_directory, label_directory, filename, ro
         label.close()
 
 for cls in classesdir:
-    print(f'Processing {cls} dataset')
+    print(f'Processing {cls[0]} dataset')
     # Loop through patient folders in class
     # Path of class folder
     class_path = os.path.join(copy_dir, cls[0])
