@@ -1,18 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm # Displays a progress bar
+import os
 
 import torch
 from torch import nn
 from torch import optim
 import torch.nn.functional as F
-from torchvision import datasets, transforms
+from torchvision import datasets, transforms, models
 from torch.utils.data import Dataset, Subset, DataLoader, random_split
 
 # TODO: Construct your data in the following baseline structure: 1) ./Dataset/Train/image/, 2) ./Dataset/Train/label, 3) ./Dataset/Test/image, and 4) ./Dataset/Test/label
-class DataSet(Dataset):
-    def __init__(self, root):        
-        self.ROOT = root
+class LungDataset(Dataset):
+    def __init__(self, root, transform):        
+        self.root = root
+        self.transform = transform
 
     def __len__(self):
         # Return number of points in the dataset
@@ -25,38 +27,40 @@ class DataSet(Dataset):
         label_path = os.path.join(self.root, 'label', f'{str(idx)}.txt')
 
         # Import image
-        img = plt.imread(img_path)
+        image = torch.tensor(plt.imread(img_path))
 
         # Get label of corresponding image
         l = open(label_path, 'r')
-        label = l.read()
+        label = int(l.read())
 
-        return img, label
+        return image, label
 
 
 # Load the dataset and train and test splits
 print("Loading datasets...")
 
 # Data path
-DATA_train_path = DataSet('./Dataset/Train')
-DATA_test_path = DataSet('./Dataset/Test')
+
 
 # Data normalization
 MyTransform = transforms.Compose([
-    transforms.Grayscale(num_output_channels=1), # Convert image to grayscale
+    transforms.Grayscale(num_output_channels=3), # Convert image to grayscale
     transforms.ToTensor(), # Transform from [0,255] uint8 to [0,1] float
     transforms.Normalize([0.5], [0.5]) # TODO: Normalize to zero mean and unit variance with appropriate parameters
 ])
 
-DATA_train = datasets.ImageFolder(root=DATA_train_path, transform=MyTransform)
-DATA_test = datasets.ImageFolder(root=DATA_test_path, transform=MyTransform)
+DATA_train_path = LungDataset('./Dataset/Train', MyTransform)
+DATA_test_path = LungDataset('./Dataset/Test', MyTransform)
+
+# DATA_train = datasets.ImageFolder(root=DATA_train_path, transform=MyTransform)
+# DATA_test = datasets.ImageFolder(root=DATA_test_path, transform=MyTransform)
 
 print("Done!")
 
 # Create dataloaders
 # TODO: Experiment with different batch sizes
-trainloader = DataLoader(Data_train, batch_size=32, shuffle=True)
-testloader = DataLoader(Data_test, batch_size=32, shuffle=True)
+trainloader = DataLoader(DATA_train_path, batch_size=32, shuffle=True)
+testloader = DataLoader(DATA_test_path, batch_size=32, shuffle=True)
 
 class Network(nn.Module):
     def __init__(self):
@@ -80,18 +84,18 @@ class Network(nn.Module):
         
         # TODO: Determine how many first layers of ResNet-50 to freeze
         child_counter = 0
-        for child in model_resnet.children():
+        for child in self.model_resnet.children():
             if child_counter < 47:
                 for param in child.parameters():
                     param.requires_grad = False
             elif child_counter == 47:
                 children_of_child_counter = 0
                 for children_of_child in child.children():
-                    if children_of_child_counter < ???:
+                    if children_of_child_counter < 10:
                         for param in children_of_child.parameters():
                             param.requires_grad = False
                     else:
-                    children_of_child_counter += 1
+                        children_of_child_counter += 1
             else:
                 print("child ",child_counter," was not frozen")
             child_counter += 1
@@ -101,7 +105,7 @@ class Network(nn.Module):
         self.model_resnet.fc = nn.Identity()
         
         # TODO: Design your own FCN
-        self.fc1 = nn.Linear(num_fc_in, 64, bias = 0 ) # from input of size num_fc_in to output of size ?
+        self.fc1 = nn.Linear(num_fc_in, 64, bias = 0) # from input of size num_fc_in to output of size ?
             #eh: maybe its a 0? 
             #eh: nn.Linar(in_features~int,out_features~int,bias~bool) 
             #eh: if bias false, layer will not learn additive bias
@@ -142,6 +146,7 @@ num_epochs = 4 # TOO: Choose an appropriate number of training epochs
 def train(model, loader, num_epoch = num_epochs): # Train the model
     print("Start training...")
     model.train() # Set the model to training mode
+
     for i in range(num_epoch):
         running_loss = []
         for batch, label in tqdm(loader):
