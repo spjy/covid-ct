@@ -28,7 +28,7 @@ root_dir = './Dataset'
 
 # all labels
 # Each label has the total number of images to correctly calculate ratio of images
-classesdir = [['Covid', 2168], ['Healthy', 758], ['Others', 1247]]
+classesdir = [['Covid', 2168, '0'], ['Healthy', 758, '1'], ['Others', 1247, '2']]
 
 # Create image/label folders for train and test folders
 train_images = os.path.join(root_dir, 'Train', 'image')
@@ -69,7 +69,7 @@ def process_image(image_original, image_directory, label_directory, filename, ro
         # Create label file corresponding to image (90 degree rotate)
         label_path = os.path.join(label_directory, f'{int(filename)}.txt')
         label = open(label_path, 'a')
-        label.write(cls[0])
+        label.write(cls[2])
         label.close()
 
 for cls in classesdir:
