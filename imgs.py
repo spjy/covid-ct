@@ -53,24 +53,23 @@ train_count = 0
 test_count = 0
 
 def process_image(image_original, image_directory, label_directory, filename, rotation):
-    if (image_original.endswith('.png')):
-        # Copy file from dataset to coerced dataset folder
-        image_path = os.path.join(image_directory, f'{int(filename)}.png')
-        shutil.copyfile(image_original, image_path)
+    # Copy file from dataset to coerced dataset folder
+    image_path = os.path.join(image_directory, f'{int(filename)}.png')
+    shutil.copyfile(image_original, image_path)
 
-        img = cv2.imread(image_original)
+    img = cv2.imread(image_original)
 
-        rsz = cv2.resize(img, (224, 224))
+    rsz = cv2.resize(img, (224, 224))
 
-        # Rotate image
-        rot = imutils.rotate_bound(rsz, rotation)
-        cv2.imwrite(image_path, rot)
+    # Rotate image
+    rot = imutils.rotate_bound(rsz, rotation)
+    cv2.imwrite(image_path, rot)
 
-        # Create label file corresponding to image (90 degree rotate)
-        label_path = os.path.join(label_directory, f'{int(filename)}.txt')
-        label = open(label_path, 'a')
-        label.write(cls[2])
-        label.close()
+    # Create label file corresponding to image (90 degree rotate)
+    label_path = os.path.join(label_directory, f'{int(filename)}.txt')
+    label = open(label_path, 'a')
+    label.write(cls[2])
+    label.close()
 
 for cls in classesdir:
     print(f'Processing {cls[0]} dataset')
@@ -85,24 +84,25 @@ for cls in classesdir:
         # Loop through images in patient folder
         for img in os.listdir(patient_path):
             # Path of patient's image
-            img_path = os.path.join(patient_path, img)
+            if (img.endswith('.png')):
+                img_path = os.path.join(patient_path, img)
 
-            # Check if image count is less than 80%. If so, put in train
-            if (img_count <= math.floor(cls[1] * train_ratio)):
-                #Rotate images
-                for rotation in range (0, 271, 90):
-                    process_image(img_path, train_images, train_labels, train_count, rotation)
-                    
-                    # For file name
-                    train_count = train_count + 1
-            else: # Otherwise, put the rest of the images in test
-                # Rotate Images
-                for rotation in range (0, 271, 90):
-                    process_image(img_path, test_images, test_labels, test_count, rotation)
+                # Check if image count is less than 80%. If so, put in train
+                if (img_count <= math.floor(cls[1] * train_ratio)):
+                    #Rotate images
+                    for rotation in range (0, 271, 90):
+                        process_image(img_path, train_images, train_labels, train_count, rotation)
+                        
+                        # For file name
+                        train_count = train_count + 1
+                else: # Otherwise, put the rest of the images in test
+                    # Rotate Images
+                    for rotation in range (0, 271, 90):
+                        process_image(img_path, test_images, test_labels, test_count, rotation)
 
-                    test_count = test_count + 1
-            
-            img_count = img_count + 1 # For ratio of train/test
+                        test_count = test_count + 1
+                
+                img_count = img_count + 1 # For ratio of train/test
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
 
