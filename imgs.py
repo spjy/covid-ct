@@ -82,27 +82,28 @@ for cls in classesdir:
         # Path of patient's folder
         patient_path = os.path.join(copy_dir, cls[0], patient)
         # Loop through images in patient folder
-        for img in os.listdir(patient_path):
-            # Path of patient's image
-            if (img.endswith('.png')):
-                img_path = os.path.join(patient_path, img)
+        if os.path.isdir(patient_path):
+            for img in os.listdir(patient_path):
+                # Path of patient's image
+                if (img.endswith('.png')):
+                    img_path = os.path.join(patient_path, img)
 
-                # Check if image count is less than 80%. If so, put in train
-                if (img_count <= math.floor(cls[1] * train_ratio)):
-                    #Rotate images
-                    for rotation in range (0, 271, 90):
-                        process_image(img_path, train_images, train_labels, train_count, rotation)
-                        
-                        # For file name
-                        train_count = train_count + 1
-                else: # Otherwise, put the rest of the images in test
-                    # Rotate Images
-                    for rotation in range (0, 271, 90):
-                        process_image(img_path, test_images, test_labels, test_count, rotation)
+                    # Check if image count is less than 80%. If so, put in train
+                    if (img_count <= math.floor(cls[1] * train_ratio)):
+                        #Rotate images
+                        for rotation in range (0, 271, 90):
+                            process_image(img_path, train_images, train_labels, train_count, rotation)
+                            
+                            # For file name
+                            train_count = train_count + 1
+                    else: # Otherwise, put the rest of the images in test
+                        # Rotate Images
+                        for rotation in range (0, 271, 90):
+                            process_image(img_path, test_images, test_labels, test_count, rotation)
 
-                        test_count = test_count + 1
-                
-                img_count = img_count + 1 # For ratio of train/test
+                            test_count = test_count + 1
+                    
+                    img_count = img_count + 1 # For ratio of train/test
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
 
