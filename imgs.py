@@ -1,13 +1,7 @@
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
 #IMPORT LIBRARIES
-import torchvision
 import os
-import numpy as np
-import pandas as pd
-from torchvision import transforms
-from matplotlib import pyplot
 import shutil
-import random
 import math
 import argparse
 import cv2
