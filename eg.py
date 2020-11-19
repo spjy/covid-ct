@@ -27,7 +27,7 @@ class LungDataset(Dataset):
         label_path = os.path.join(self.root, 'label', f'{str(idx)}.txt')
 
         # Import image
-        image = torch.tensor(plt.imread(img_path))
+        image = np.transpose(torch.tensor(plt.imread(img_path)), (2, 0, 1))
 
         # Get label of corresponding image
         l = open(label_path, 'r')
@@ -38,9 +38,6 @@ class LungDataset(Dataset):
 
 # Load the dataset and train and test splits
 print("Loading datasets...")
-
-# Data path
-
 
 # Data normalization
 MyTransform = transforms.Compose([
@@ -76,8 +73,8 @@ class Network(nn.Module):
         self.model_resnet = models.resnet50(pretrained=True)
         
         # The code below can show children of ResNet-50
-        #child_counter = 0
-        #for child in model.children():
+        # child_counter = 0
+        # for child in self.model_resnet.children():
         #    print(" child", child_counter, "is -")
         #    print(child)
         #    child_counter += 1
@@ -85,13 +82,13 @@ class Network(nn.Module):
         # TODO: Determine how many first layers of ResNet-50 to freeze
         child_counter = 0
         for child in self.model_resnet.children():
-            if child_counter < 47:
+            if child_counter < 5:
                 for param in child.parameters():
                     param.requires_grad = False
-            elif child_counter == 47:
+            elif child_counter == 5:
                 children_of_child_counter = 0
                 for children_of_child in child.children():
-                    if children_of_child_counter < 10:
+                    if children_of_child_counter < 2:
                         for param in children_of_child.parameters():
                             param.requires_grad = False
                     else:
@@ -105,13 +102,13 @@ class Network(nn.Module):
         self.model_resnet.fc = nn.Identity()
         
         # TODO: Design your own FCN
-        self.fc1 = nn.Linear(num_fc_in, 64, bias = 0) # from input of size num_fc_in to output of size ?
+        self.fc1 = nn.Linear(num_fc_in, 64, bias = 1) # from input of size num_fc_in to output of size ?
             #eh: maybe its a 0? 
             #eh: nn.Linar(in_features~int,out_features~int,bias~bool) 
             #eh: if bias false, layer will not learn additive bias
             #eh: in_features: size of intput sample
             #eh: out_features: size of output sample
-        self.fc2 = nn.Linear(64, 3, bias = 0 ) # from hidden layer to 3 class scores
+        self.fc2 = nn.Linear(64, 3, bias = 1) # from hidden layer to 3 class scores
             #eh: input feature = output feature above? 
             #eh: out_features: size 3
 
@@ -139,7 +136,7 @@ model = Network().to(device)
 criterion = nn.CrossEntropyLoss() # Specify the loss layer (note: CrossEntropyLoss already includes LogSoftMax())
 # TODO: Modify the line below, experiment with different optimizers and parameters (such as learning rate)
 optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=0.01, weight_decay=0.00001) # Specify optimizer and assign trainable parameters to it, weight_decay is L2 regularization strength (default: lr=1e-2, weight_decay=1e-4)
-num_epochs = 4 # TOO: Choose an appropriate number of training epochs
+num_epochs = 10 # TOO: Choose an appropriate number of training epochs
     #eh: epoch counted as each full pass through data set (range 3-10) 
     #eh: too small~ model may not learn everything it could have
     #eh: chose 4 for now, but we can change it
