@@ -136,7 +136,7 @@ model = Network().to(device)
 criterion = nn.CrossEntropyLoss() # Specify the loss layer (note: CrossEntropyLoss already includes LogSoftMax())
 # TODO: Modify the line below, experiment with different optimizers and parameters (such as learning rate)
 optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=0.01, weight_decay=0.00001) # Specify optimizer and assign trainable parameters to it, weight_decay is L2 regularization strength (default: lr=1e-2, weight_decay=1e-4)
-num_epochs = 10 # TOO: Choose an appropriate number of training epochs
+num_epochs = 50 # TOO: Choose an appropriate number of training epochs
     #eh: epoch counted as each full pass through data set (range 3-10) 
     #eh: too small~ model may not learn everything it could have
     #eh: chose 4 for now, but we can change it
