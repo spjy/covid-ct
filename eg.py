@@ -12,7 +12,7 @@ from torch.utils.data import Dataset, Subset, DataLoader, random_split
 
 # TODO: Construct your data in the following baseline structure: 1) ./Dataset/Train/image/, 2) ./Dataset/Train/label, 3) ./Dataset/Test/image, and 4) ./Dataset/Test/label
 class LungDataset(Dataset):
-    def __init__(self, root, transform):        
+    def __init__(self, root, transform=None):        
         self.root = root
         self.transform = transform
 
@@ -28,6 +28,8 @@ class LungDataset(Dataset):
 
         # Import image
         image = np.transpose(torch.tensor(plt.imread(img_path)), (2, 0, 1))
+        image = transforms.Normalize([0.6495729088783264], [0.2604725658893585]).forward(image)
+        image = transforms.Grayscale(num_output_channels=3).forward(image)
 
         # Get label of corresponding image
         l = open(label_path, 'r')
@@ -40,14 +42,14 @@ class LungDataset(Dataset):
 print("Loading datasets...")
 
 # Data normalization
-MyTransform = transforms.Compose([
-    transforms.Grayscale(num_output_channels=3), # Convert image to grayscale
-    transforms.ToTensor(), # Transform from [0,255] uint8 to [0,1] float
-    transforms.Normalize([0.5], [0.5]) # TODO: Normalize to zero mean and unit variance with appropriate parameters
-])
+# MyTransform = transforms.Compose([
+#     transforms.Grayscale(num_output_channels=3), # Convert image to grayscale
+#     transforms.ToTensor(), # Transform from [0,255] uint8 to [0,1] float
+#     transforms.Normalize([0.6495729088783264], [0.2604725658893585]) # TODO: Normalize to zero mean and unit variance with appropriate parameters
+# ])
 
-DATA_train_path = LungDataset('./Dataset/Train', MyTransform)
-DATA_test_path = LungDataset('./Dataset/Test', MyTransform)
+DATA_train_path = LungDataset('./Dataset/Train')
+DATA_test_path = LungDataset('./Dataset/Test')
 
 # DATA_train = datasets.ImageFolder(root=DATA_train_path, transform=MyTransform)
 # DATA_test = datasets.ImageFolder(root=DATA_test_path, transform=MyTransform)
