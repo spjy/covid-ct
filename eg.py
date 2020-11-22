@@ -1,7 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from tqdm import tqdm # Displays a progress bar
+from tqdm.notebook import tqdm
 import os
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
 
 import torch
 from torch import nn
@@ -9,6 +12,25 @@ from torch import optim
 import torch.nn.functional as F
 from torchvision import datasets, transforms, models
 from torch.utils.data import Dataset, Subset, DataLoader, random_split
+
+parameters = {
+    'batch_size': 32,
+    'child_counter': 5,
+    'children_of_child_counter': 1,
+    'layers': 2,
+    'neurons': 64,
+    'bias': 1,
+    'activation': 'relu',
+    'loss': 'cross entropy loss',
+    'optimizer': 'adam',
+    'learning_rate': 0.01,
+    'weight_decay': 0.0001,
+    'epochs': 1,
+    'mean': 0.6495729088783264,
+    'std': 0.2604725658893585,
+    'loss': None,
+    'evaluation_accuracy': None
+}
 
 # TODO: Construct your data in the following baseline structure: 1) ./Dataset/Train/image/, 2) ./Dataset/Train/label, 3) ./Dataset/Test/image, and 4) ./Dataset/Test/label
 class LungDataset(Dataset):
@@ -28,8 +50,8 @@ class LungDataset(Dataset):
 
         # Import image
         image = np.transpose(torch.tensor(plt.imread(img_path)), (2, 0, 1))
-        image = transforms.Normalize([0.6495729088783264], [0.2604725658893585]).forward(image)
         image = transforms.Grayscale(num_output_channels=3).forward(image)
+        image = transforms.Normalize([parameters['mean']], [parameters['std']]).forward(image)
 
         # Get label of corresponding image
         l = open(label_path, 'r')
@@ -58,8 +80,8 @@ print("Done!")
 
 # Create dataloaders
 # TODO: Experiment with different batch sizes
-trainloader = DataLoader(DATA_train_path, batch_size=32, shuffle=True)
-testloader = DataLoader(DATA_test_path, batch_size=32, shuffle=True)
+trainloader = DataLoader(DATA_train_path, batch_size=parameters['batch_size'], shuffle=True)
+testloader = DataLoader(DATA_test_path, batch_size=parameters['batch_size'], shuffle=True)
 
 class Network(nn.Module):
     def __init__(self):
@@ -84,13 +106,13 @@ class Network(nn.Module):
         # TODO: Determine how many first layers of ResNet-50 to freeze
         child_counter = 0
         for child in self.model_resnet.children():
-            if child_counter < 5:
+            if child_counter < parameters['child_counter']:
                 for param in child.parameters():
                     param.requires_grad = False
-            elif child_counter == 5:
+            elif child_counter == parameters['child_counter']:
                 children_of_child_counter = 0
                 for children_of_child in child.children():
-                    if children_of_child_counter < 2:
+                    if children_of_child_counter < parameters['children_of_child_counter']:
                         for param in children_of_child.parameters():
                             param.requires_grad = False
                     else:
@@ -104,13 +126,13 @@ class Network(nn.Module):
         self.model_resnet.fc = nn.Identity()
         
         # TODO: Design your own FCN
-        self.fc1 = nn.Linear(num_fc_in, 64, bias = 1) # from input of size num_fc_in to output of size ?
+        self.fc1 = nn.Linear(num_fc_in, parameters['neurons'], bias = parameters['bias']) # from input of size num_fc_in to output of size ?
             #eh: maybe its a 0? 
             #eh: nn.Linar(in_features~int,out_features~int,bias~bool) 
             #eh: if bias false, layer will not learn additive bias
             #eh: in_features: size of intput sample
             #eh: out_features: size of output sample
-        self.fc2 = nn.Linear(64, 3, bias = 1) # from hidden layer to 3 class scores
+        self.fc2 = nn.Linear(parameters['neurons'], 3, bias = parameters['bias']) # from hidden layer to 3 class scores
             #eh: input feature = output feature above? 
             #eh: out_features: size 3
 
@@ -125,9 +147,9 @@ class Network(nn.Module):
             #eh: applies linear transformation to the datay = xA^T+b
         x = relu(x)
             #eh: applies rectified linear unit function element-wise
-        x = self.fc2(x) 
+        x = self.fc2(x)
             #eh: applies linear transform from hidden layers to x
-        x = F.log_softmax(x) 
+        # x = F.log_softmax(x)
             #eh: outputs are confidence score
 
         # The loss layer will be applied outside Network class
@@ -137,14 +159,18 @@ device = "cuda" if torch.cuda.is_available() else "cpu" # Configure device
 model = Network().to(device)
 criterion = nn.CrossEntropyLoss() # Specify the loss layer (note: CrossEntropyLoss already includes LogSoftMax())
 # TODO: Modify the line below, experiment with different optimizers and parameters (such as learning rate)
-optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=0.01, weight_decay=0.00001) # Specify optimizer and assign trainable parameters to it, weight_decay is L2 regularization strength (default: lr=1e-2, weight_decay=1e-4)
-num_epochs = 50 # TOO: Choose an appropriate number of training epochs
+optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=parameters['learning_rate'], weight_decay=parameters['weight_decay']) # Specify optimizer and assign trainable parameters to it, weight_decay is L2 regularization strength (default: lr=1e-2, weight_decay=1e-4)
+num_epochs = parameters['epochs'] # TOO: Choose an appropriate number of training epochs
     #eh: epoch counted as each full pass through data set (range 3-10) 
     #eh: too small~ model may not learn everything it could have
     #eh: chose 4 for now, but we can change it
+
+
 def train(model, loader, num_epoch = num_epochs): # Train the model
     print("Start training...")
     model.train() # Set the model to training mode
+
+    l = []
 
     for i in range(num_epoch):
         running_loss = []
@@ -158,7 +184,10 @@ def train(model, loader, num_epoch = num_epochs): # Train the model
             loss.backward() # Backprop gradients to all tensors in the network
             optimizer.step() # Update trainable weights
         print("Epoch {} loss:{}".format(i+1,np.mean(running_loss))) # Print the average loss for this epoch
+        l.append(np.mean(running_loss))
     print("Done!")
+
+    return l
 
 def evaluate(model, loader): # Evaluate accuracy on validation / test set
     model.eval() # Set the model to evaluation mode
@@ -172,7 +201,22 @@ def evaluate(model, loader): # Evaluate accuracy on validation / test set
     acc = correct/len(loader.dataset)
     print("Evaluation accuracy: {}".format(acc))
     return acc
-    
-train(model, trainloader, num_epochs)
+  
+parameters['loss'] = train(model, trainloader, num_epochs)
 print("Evaluate on test set")
-evaluate(model, testloader)
+parameters['evaluation_accuracy'] = evaluate(model, testloader)
+
+# X
+x = range(len(parameters['loss']))
+plt.plot(x, parameters['loss'], 'o')
+plt.xticks(x)
+plt.xlabel('Iteration')  
+plt.ylabel('Loss')
+plt.title("Loss for each iteration")
+
+# Parameters
+plt.figtext(0, 1, pp.pformat(parameters), wrap=True)
+
+plt.show()
+
+print(parameters)
