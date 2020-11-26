@@ -8,18 +8,19 @@ import math
 # Create image/label folders for train and test folders
 
 root_dir = os.path.join('Dataset')
+sorted_dataset = os.path.join('home', 'spjy', 'SortedDataset')
 
 train_ratio = 0.8 #80% of images are for training
 test_ratio = 0.2 #20% of images are for testing
 
-covid_images = os.path.join(root_dir, 'Covid', 'image')
-covid_labels = os.path.join(root_dir, 'Covid', 'label')
+covid_images = os.path.join(sorted_dataset, 'Covid', 'image')
+covid_labels = os.path.join(sorted_dataset, 'Covid', 'label')
 
-healthy_images = os.path.join(root_dir, 'Healthy', 'image')
-healthy_labels = os.path.join(root_dir, 'Healthy', 'label')
+healthy_images = os.path.join(sorted_dataset, 'Healthy', 'image')
+healthy_labels = os.path.join(sorted_dataset, 'Healthy', 'label')
 
-other_images = os.path.join(root_dir, 'Others', 'image')
-other_labels = os.path.join(root_dir, 'Others', 'label')
+other_images = os.path.join(sorted_dataset, 'Others', 'image')
+other_labels = os.path.join(sorted_dataset, 'Others', 'label')
 
 train_images = os.path.join(root_dir, 'Train', 'image')
 train_labels = os.path.join(root_dir, 'Train', 'label')
