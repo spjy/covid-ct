@@ -45,6 +45,3 @@ for i in range(0, len(DATA_train_path)):
   std = std + torch.std(DATA_train_path[i][0])
 
 print(f'Std: {std / len(DATA_train_path)}') 
-
-
-

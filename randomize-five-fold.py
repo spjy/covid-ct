@@ -8,7 +8,7 @@ import math
 # Create image/label folders for train and test folders
 
 root_dir = os.path.join('Dataset')
-sorted_dataset = os.path.join('home', 'spjy', 'SortedDataset')
+sorted_dataset = os.path.join('Dataset')
 
 train_ratio = 0.8 #80% of images are for training
 test_ratio = 0.2 #20% of images are for testing
@@ -23,7 +23,7 @@ other_images = os.path.join(sorted_dataset, 'Others', 'image')
 other_labels = os.path.join(sorted_dataset, 'Others', 'label')
 
 # 5 random
-for i in range(4):
+for i in range(5):
   fold_images = os.path.join(root_dir, f'fold{i}', 'image')
   fold_labels = os.path.join(root_dir, f'fold{i}', 'label')
 
@@ -57,8 +57,10 @@ for i in range(4):
 #   os.rmdir(test_images)
 #   os.rmdir(test_labels)
 
+# Total number in each class
 numbers = [8668, 3028, 4988]
 
+#
 class_entries = []
 class_count = 0
 train_img_count = 0
@@ -76,59 +78,41 @@ for cls in classesdir:
   class_entries = []
   class_count = 0
 
+  # Array with random indices for class
   five_fold = []
 
+  # Generates random order of numbers
   while (len(five_fold) != cls[1]):
     k = random.randint(0, cls[1])
 
     if (k not in five_fold):
       five_fold.append(k)
 
+  # Keep track of which fold we are on
   fold_iteration = 0
 
+  split_amount = math.floor(cls[1] / 5)
+
+  # Loop through array of random 
   for count, elem in enumerate(five_fold):
-    image_directory = os.path.join(root_dir, cls[0], 'image', f'{elem}.png')
-    label_directory = os.path.join(root_dir, cls[0], 'label', f'{elem}.txt')
+    # Get original file to copy
+    image_directory = os.path.join(sorted_dataset, cls[0], 'image', f'{elem}.png')
+    label_directory = os.path.join(sorted_dataset, cls[0], 'label', f'{elem}.txt')
 
+    # New copied over file in fold folder
     fold_images = os.path.join(root_dir, f'fold{fold_iteration}', 'image', f'{fold_counts[fold_iteration]}.png')
-    fold_labels = os.path.join(root_dir, f'fold{fold_iteration}', 'label', f'{fold_counts[fold_iteration]}.png')
+    fold_labels = os.path.join(root_dir, f'fold{fold_iteration}', 'label', f'{fold_counts[fold_iteration]}.txt')
 
+    # Copy files
     shutil.copyfile(image_directory, fold_images)
     shutil.copyfile(label_directory, fold_labels)
 
-    # image names
+    # image name counter for fold
     fold_counts[fold_iteration] = fold_counts[fold_iteration] + 1
 
-    if (count == math.floor(cls[1] / 5)):
+    # increment iteration
+    if (count == split_amount + (split_amount * fold_iteration)):
       fold_iteration = fold_iteration + 1
 
-
-  # print(class_count)
-
-  # for img in os.listdir(os.path.join(root_dir, cls[0], 'image')): 
-  #   k = int(img.split('.')[0])
-  #   if k not in class_entries:
-  #     image_directory = os.path.join(root_dir, cls[0], 'image', f'{k}.png')
-  #     label_directory = os.path.join(root_dir, cls[0], 'label', f'{k}.txt')
-
-  #     test_images_new = os.path.join(test_images, f'{test_img_count}.png')
-  #     test_labels_new = os.path.join(test_labels, f'{test_img_count}.txt')
-
-  #     shutil.copyfile(image_directory, test_images_new)
-  #     shutil.copyfile(label_directory, test_labels_new)
-
-  #     test_img_count = test_img_count + 1
-
-
-  # image_directory = os.path.join(root_dir, cls[0], 'image', f'{k}.png')
-  # label_directory = os.path.join(root_dir, cls[0], 'label', f'{k}.txt')
-
-  # train_images_new = os.path.join(train_images, f'{train_img_count}.png')
-  # train_labels_new = os.path.join(train_labels, f'{train_img_count}.txt')
-
-  # shutil.copyfile(image_directory, train_images_new)
-  # shutil.copyfile(label_directory, train_labels_new)
-
-  # class_entries.append(k)
-  # train_img_count = train_img_count + 1
-  # class_count = class_count + 1
+    if (fold_iteration == 5):
+      break
