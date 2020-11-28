@@ -95,8 +95,8 @@ for cls in classesdir:
                         # Rotate image
                         rot = imutils.rotate_bound(rsz, rotation)
 
-                        final_image = cv2.merge((rot, rot, rot))
-
+                        final_image = cv2.cvtColor(rot, cv2.COLOR_BGR2RGB)
+                        
                         # Grayscale
                         cv2.imwrite(image_path, final_image)
 
