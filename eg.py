@@ -57,7 +57,7 @@ class LungDataset(Dataset):
         image = np.transpose(torch.tensor(plt.imread(img_path)), (2, 0, 1))
 
         # Normalize image to reduce computation
-        image = transforms.Normalize(parameters['mean'], parameters['std']).forward(image)\
+        image = transforms.Normalize(parameters['mean'], parameters['std']).forward(image)
         
         # Greyscale image
         image = transforms.Grayscale(num_output_channels=3).forward(image)
@@ -125,7 +125,6 @@ class Network(nn.Module):
         # Set ResNet-50's FCN as an identity mapping
         num_fc_in = self.model_resnet.fc.in_features
         self.model_resnet.fc = nn.Identity()
-        
 
         # Input layer
         self.fc1 = nn.Linear(num_fc_in, 64, bias = parameters['bias']) # from input of size num_fc_in to output of size ?
