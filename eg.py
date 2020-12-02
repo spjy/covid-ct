@@ -36,6 +36,25 @@ parameters = {
     'total_accuracy': None
 }
 
+parameters = {
+    'batch_size': 32,
+    'child_counter': 5,
+    'children_of_child_counter': 1,
+    'layers': 2,
+    'neurons': 64,
+    'bias': 1,
+    'activation': 'relu',
+    'loss': 'cross entropy loss',
+    'optimizer': 'adam',
+    'learning_rate': 0.01,
+    'weight_decay': 0.0001,
+    'epochs': 1,
+    'mean': 0.6495729088783264,
+    'std': 0.2604725658893585,
+    'loss': None,
+    'evaluation_accuracy': None
+}
+
 # TODO: Construct your data in the following baseline structure: 1) ./Dataset/Train/image/, 2) ./Dataset/Train/label, 3) ./Dataset/Test/image, and 4) ./Dataset/Test/label
 class LungDataset(Dataset):
     def __init__(self, root):        
@@ -126,6 +145,7 @@ class Network(nn.Module):
         num_fc_in = self.model_resnet.fc.in_features
         self.model_resnet.fc = nn.Identity()
         
+
         # Input layer
         self.fc1 = nn.Linear(num_fc_in, 64, bias = parameters['bias']) # from input of size num_fc_in to output of size ?
         
