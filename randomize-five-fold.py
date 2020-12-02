@@ -35,9 +35,6 @@ for i in range(5):
     os.rmdir(fold_images)
     os.rmdir(fold_labels)
 
-
-
-
 # train_images = os.path.join(root_dir, 'Train', 'image')
 # train_labels = os.path.join(root_dir, 'Train', 'label')
 
