@@ -36,25 +36,6 @@ parameters = {
     'total_accuracy': None
 }
 
-parameters = {
-    'batch_size': 32,
-    'child_counter': 5,
-    'children_of_child_counter': 1,
-    'layers': 2,
-    'neurons': 64,
-    'bias': 1,
-    'activation': 'relu',
-    'loss': 'cross entropy loss',
-    'optimizer': 'adam',
-    'learning_rate': 0.01,
-    'weight_decay': 0.0001,
-    'epochs': 1,
-    'mean': 0.6495729088783264,
-    'std': 0.2604725658893585,
-    'loss': None,
-    'evaluation_accuracy': None
-}
-
 # TODO: Construct your data in the following baseline structure: 1) ./Dataset/Train/image/, 2) ./Dataset/Train/label, 3) ./Dataset/Test/image, and 4) ./Dataset/Test/label
 class LungDataset(Dataset):
     def __init__(self, root):        
